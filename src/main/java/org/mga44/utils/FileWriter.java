@@ -12,8 +12,9 @@ public class FileWriter {
     private static final Logger logger = LoggerFactory.getLogger(FileWriter.class);
 
     public static void writeContentsToFile(Class<?> clazz, String text) {
-        Path filePath = Paths.get( clazz.getSimpleName() + "_output.txt");
+        final Path filePath = Paths.get("out", clazz.getSimpleName() + "_output.txt");
         try {
+            Files.createDirectories(filePath.getParent());
             Files.writeString(filePath, text);
             logger.info("Output written to out file: {}", filePath);
         } catch (IOException e) {
