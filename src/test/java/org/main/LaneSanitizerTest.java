@@ -64,7 +64,7 @@ class LaneSanitizerTest {
                 w Krakowie  2 XII Wydzia³ Cywilny\s
                 """;
 
-//when
+        //when
         Map<String, List<String>> result = new LaneSanitizer().clean(input);
 
         //then
