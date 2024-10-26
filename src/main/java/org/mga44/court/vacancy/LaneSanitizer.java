@@ -44,7 +44,7 @@ public class LaneSanitizer {
                 currentCourt = verse.trim();
                 continue;
             }
-
+            //TODO: think about other approach - read inputs until you get Sad
             if (verse.startsWith(COURT_HEADER) && hasSimpleStructure) {
                 groupedLines.get(currentAppelation).add(verse);
             } else {
