@@ -1,19 +1,47 @@
 plugins {
     id 'java'
+    id 'application'
+
 }
+
+repositories {
+    mavenCentral()
+}
+//compileJava.options.encoding = 'Cp1250'
+//compileJava.options.encoding = "UTF-8"
+//compileTestJava.options.encoding = "UTF-8"
+//
+//
+//tasks.withType(JavaCompile) {
+//    options.encoding = 'Cp1250'
+//}
 
 group = 'org.example'
 version = '1.0-SNAPSHOT'
+application {
+    mainClass = 'org.main.Main'  // Replace 'App' with your main class if it has a different name or package
+
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation 'org.apache.pdfbox:2.0.29'
+    implementation 'org.apache.pdfbox:pdfbox:3.0.3'
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'ch.qos.logback:logback-classic:1.2.11'
+
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation("org.assertj:assertj-core:3.26.3")
+
 }
 
 test {
