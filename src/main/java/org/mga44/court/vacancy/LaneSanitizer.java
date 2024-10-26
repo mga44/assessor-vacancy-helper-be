@@ -1,7 +1,8 @@
-package org.main;
+package org.mga44.court.vacancy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.mga44.utils.FileWriter;
 
 import java.util.*;
 import java.util.regex.Pattern;

@@ -1,4 +1,4 @@
-package org.main;
+package org.mga44.court.vacancy;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.Loader;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static org.main.FileWriter.writeContentsToFile;
+import static org.mga44.utils.FileWriter.writeContentsToFile;
 
 @RequiredArgsConstructor
 public class PDFCourtVacancyParser {

@@ -1,5 +1,7 @@
 package org.main;
 
+import org.mga44.court.vacancy.CourtVacancy;
+import org.mga44.court.vacancy.PDFCourtVacancyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
