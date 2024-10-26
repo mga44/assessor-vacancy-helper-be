@@ -1,11 +1,14 @@
 package org.main;
 
 import org.mga44.court.vacancy.CourtVacancy;
+import org.mga44.court.vacancy.LaneSanitizer;
 import org.mga44.court.vacancy.PDFCourtVacancyParser;
+import org.mga44.court.vacancy.VacancyMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class Main {
 
@@ -16,9 +19,10 @@ public class Main {
 
     public static void main(String[] args) {
         final PDFCourtVacancyParser parser = new PDFCourtVacancyParser(FILENAME_1);
-        final List<CourtVacancy> vacancies = parser.getVacancies();
+        String pdfTextContents = parser.parsePDFFile();
+        final Map<String, List<String>> sanitizedLanes = new LaneSanitizer().clean(pdfTextContents);
+        final VacancyMapper vacancyMapper = new VacancyMapper();
+        List<CourtVacancy> vacancies = vacancyMapper.mapToVacancies(sanitizedLanes);
         logger.info("Found {} vacancies", vacancies.size());
-        vacancies.forEach(System.out::println);
-
     }
 }
