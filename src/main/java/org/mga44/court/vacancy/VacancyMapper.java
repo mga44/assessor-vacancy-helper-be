@@ -24,7 +24,7 @@ public class VacancyMapper {
             vacancies.addAll(courts.stream().map(verse -> getCourtVacancy(verse, appelation)).toList());
         }
 
-        FileWriter.writeContentsToFile(VacancyMapper.class,
+        FileWriter.writeToOut(VacancyMapper.class,
                 vacancies.stream()
                         .map(Objects::toString)
                         .collect(Collectors.joining(System.lineSeparator()))
