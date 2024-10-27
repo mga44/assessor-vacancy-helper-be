@@ -10,7 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import static org.mga44.utils.FileWriter.writeContentsToFile;
+import static org.mga44.utils.FileWriter.writeToOut;
+import static org.mga44.utils.FileWriter.writeToResult;
 
 @RequiredArgsConstructor
 public class PDFCourtVacancyParser {
@@ -23,7 +24,9 @@ public class PDFCourtVacancyParser {
         try (final PDDocument document = Loader.loadPDF(new RandomAccessReadBufferedFile(filename))) {
             final PDFTextStripper pdfStripper = new PDFTextStripper();
             final String text = pdfStripper.getText(document);
-            writeContentsToFile(PDFCourtVacancyParser.class, text);
+            logger.info("Parsed [{}] lines from PDF", text.split(System.lineSeparator()).length);
+            writeToOut(PDFCourtVacancyParser.class, text);
+            writeToResult(PDFCourtVacancyParser.class, text);
             return text;
         } catch (IOException e) {
             throw new RuntimeException(e);

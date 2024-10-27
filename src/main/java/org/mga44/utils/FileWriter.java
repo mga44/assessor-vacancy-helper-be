@@ -11,12 +11,23 @@ import java.nio.file.Paths;
 public class FileWriter {
     private static final Logger logger = LoggerFactory.getLogger(FileWriter.class);
 
-    public static void writeContentsToFile(Class<?> clazz, String text) {
+    public static void writeToOut(Class<?> clazz, String text) {
         final Path filePath = Paths.get("out", clazz.getSimpleName() + "_output.txt");
         try {
             Files.createDirectories(filePath.getParent());
             Files.writeString(filePath, text);
-            logger.info("Output written to out file: {}", filePath);
+            logger.debug("Output written to out file: {}", filePath);
+        } catch (IOException e) {
+            logger.error("Unexpected error when writing to {}, stacktrace: {}", filePath, e.getStackTrace());
+        }
+    }
+
+    public static void writeToResult(Class<?> clazz, String text) {
+        final Path filePath = Paths.get("result", clazz.getSimpleName() + ".out");
+        try {
+            Files.createDirectories(filePath.getParent());
+            Files.writeString(filePath, text);
+            logger.debug("Result written to out file: {}", filePath);
         } catch (IOException e) {
             logger.error("Unexpected error when writing to {}, stacktrace: {}", filePath, e.getStackTrace());
         }

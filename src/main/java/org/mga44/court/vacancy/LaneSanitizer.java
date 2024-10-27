@@ -58,7 +58,10 @@ public class LaneSanitizer {
             }
         }
 
-        FileWriter.writeContentsToFile(LaneSanitizer.class, prepareForPrettyPrint(groupedLines));
+        FileWriter.writeToOut(LaneSanitizer.class, prepareForPrettyPrint(groupedLines));
+        Integer courts = groupedLines.values().stream().map(List::size).reduce(0, Integer::sum);
+        int lines = groupedLines.size() + courts;
+        log.info("Sanitized [{}] lines, with [{}] courts", lines, courts);
         return groupedLines;
     }
 

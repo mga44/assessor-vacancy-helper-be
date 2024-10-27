@@ -55,7 +55,7 @@ public class Main {
             ));
         }
         logger.info("Found coordinates for {} vacancies", resultVacancies.size());
-        FileWriter.writeContentsToFile(Main.class, new Gson().toJson(resultVacancies));
+        FileWriter.writeToOut(Main.class, new Gson().toJson(resultVacancies));
         saveAsJson();
     }
 
