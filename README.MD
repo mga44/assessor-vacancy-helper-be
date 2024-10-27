@@ -1,5 +1,6 @@
 # TODO
 * [FE] label translation
 * [BE] better getting coordinates
-* [BE] 
-* [FE] rebind popups
+* [BE] get population, dist. to warsaw
+* [x] [FE] rebind popups
+* [FE] add filtering on fe side
