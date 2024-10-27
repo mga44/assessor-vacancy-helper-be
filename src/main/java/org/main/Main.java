@@ -8,6 +8,7 @@ import org.mga44.utils.FileWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -49,6 +50,14 @@ public class Main {
         }
         logger.info("Found coordinates for {} vacancies", resultVacancies.size());
         FileWriter.writeContentsToFile(Main.class, new Gson().toJson(resultVacancies));
-        //Files.copy(Paths.get("out/Main_output.txt"), Paths.get("out/coordinates.json"));
+        saveAsJson();
+    }
+
+    private static void saveAsJson() {
+        try {
+            Files.copy(Paths.get("out/Main_output.txt"), Paths.get("out/coordinates.json"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
