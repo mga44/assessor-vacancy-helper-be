@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.mga44.court.vacancy.*;
 import org.mga44.court.vacancy.geo.Coordinates;
 import org.mga44.court.vacancy.geo.GeocodingService;
+import org.mga44.court.vacancy.geo.LocalCourtService;
 import org.mga44.utils.FileWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,19 +36,23 @@ public class Main {
         final GeocodingService geoService = new GeocodingService();
         final ArrayList<CourtVacancyJson> resultVacancies = new ArrayList<>();
         for (CourtVacancy vacancy : vacancies) {
-            final Optional<Coordinates> coordinates = geoService.getCoordinates(vacancy.courtName());
-            if(coordinates.isEmpty()) {
-                logger.warn("Skipping [{}] for now", vacancy.courtName());
-            } else {
-                resultVacancies.add(new CourtVacancyJson(
-                        vacancy.courtName(),
-                        vacancy.courtDepartment(),
-                        vacancy.vacancy(),
-                        vacancy.appelation(),
-                        coordinates.get().lat(),
-                        coordinates.get().lon()
-                ));
+            Optional<Coordinates> coordinates = geoService.getCoordinates(vacancy.courtName());
+            if (coordinates.isEmpty()) {
+                Optional<String> city = LocalCourtService.getCity(vacancy.courtName());
+                coordinates = city.flatMap(geoService::getCoordinates);
+                if (coordinates.isEmpty()) {
+                    logger.warn("Skipping [{}] for now", vacancy.courtName());
+                    continue;
+                }
             }
+            resultVacancies.add(new CourtVacancyJson(
+                    vacancy.courtName(),
+                    vacancy.courtDepartment(),
+                    vacancy.vacancy(),
+                    vacancy.appelation(),
+                    coordinates.get().lat(),
+                    coordinates.get().lon()
+            ));
         }
         logger.info("Found coordinates for {} vacancies", resultVacancies.size());
         FileWriter.writeContentsToFile(Main.class, new Gson().toJson(resultVacancies));
@@ -55,7 +61,11 @@ public class Main {
 
     private static void saveAsJson() {
         try {
-            Files.copy(Paths.get("out/Main_output.txt"), Paths.get("out/coordinates.json"));
+            Files.copy(
+                    Paths.get("out/Main_output.txt"),
+                    Paths.get("out/coordinates.json"),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
