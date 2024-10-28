@@ -3,7 +3,6 @@ package org.mga44.court.vacancy.geo;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.mga44.court.vacancy.CourtVacancy;
-import org.mga44.court.vacancy.GeolocatedCourtVacancy;
 import org.mga44.utils.FileWriter;
 import org.mga44.utils.JsonMapper;
 

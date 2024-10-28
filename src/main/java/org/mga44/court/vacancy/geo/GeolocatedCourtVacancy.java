@@ -1,4 +1,4 @@
-package org.mga44.court.vacancy;
+package org.mga44.court.vacancy.geo;
 
 import java.math.BigDecimal;
 

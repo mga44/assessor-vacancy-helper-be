@@ -3,6 +3,7 @@ package org.main;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.mga44.court.vacancy.*;
+import org.mga44.court.vacancy.geo.GeolocatedCourtVacancy;
 import org.mga44.court.vacancy.geo.LocationFinder;
 import org.mga44.utils.JsonMapper;
 
