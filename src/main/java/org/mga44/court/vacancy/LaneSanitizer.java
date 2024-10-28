@@ -59,6 +59,7 @@ public class LaneSanitizer {
         }
 
         FileWriter.writeToOut(LaneSanitizer.class, prepareForPrettyPrint(groupedLines));
+        FileWriter.writeToResult(LaneSanitizer.class, prepareForResultPrint(groupedLines));
         Integer courts = groupedLines.values().stream().map(List::size).reduce(0, Integer::sum);
         int lines = groupedLines.size() + courts;
         log.info("Sanitized [{}] lines, with [{}] courts", lines, courts);
@@ -70,6 +71,14 @@ public class LaneSanitizer {
                 .map(e -> e.getKey() + System
                         .lineSeparator() + e.getValue().stream()
                         .map(x -> " - " + x)
+                        .collect(Collectors.joining(System.lineSeparator())))
+                .collect(Collectors.joining(System.lineSeparator()));
+    }
+
+    private String prepareForResultPrint(Map<String, List<String>> groupedLines) {
+        return groupedLines.entrySet().stream()
+                .map(e -> e.getKey() + System
+                        .lineSeparator() + e.getValue().stream()
                         .collect(Collectors.joining(System.lineSeparator())))
                 .collect(Collectors.joining(System.lineSeparator()));
     }
