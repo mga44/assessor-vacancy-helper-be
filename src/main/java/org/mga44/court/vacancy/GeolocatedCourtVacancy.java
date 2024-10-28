@@ -2,7 +2,7 @@ package org.mga44.court.vacancy;
 
 import java.math.BigDecimal;
 
-public record CourtVacancyJson(
+public record GeolocatedCourtVacancy(
         String courtName,
         String courtDepartment,
         int vacancy,

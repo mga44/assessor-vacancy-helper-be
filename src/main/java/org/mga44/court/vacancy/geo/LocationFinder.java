@@ -3,7 +3,7 @@ package org.mga44.court.vacancy.geo;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.mga44.court.vacancy.CourtVacancy;
-import org.mga44.court.vacancy.CourtVacancyJson;
+import org.mga44.court.vacancy.GeolocatedCourtVacancy;
 import org.mga44.utils.FileWriter;
 import org.mga44.utils.JsonMapper;
 
@@ -38,8 +38,8 @@ public class LocationFinder {
     }
 
 
-    public List<CourtVacancyJson> findCoordinates(List<CourtVacancy> vacancies) {
-        final ArrayList<CourtVacancyJson> resultVacancies = new ArrayList<>();
+    public List<GeolocatedCourtVacancy> findCoordinates(List<CourtVacancy> vacancies) {
+        final ArrayList<GeolocatedCourtVacancy> resultVacancies = new ArrayList<>();
         for (CourtVacancy vacancy : vacancies) {
             Coordinates coordinates = GEO_CACHE.get(vacancy.courtName());
             if (coordinates == null) {
@@ -49,7 +49,7 @@ public class LocationFinder {
                 }
                 coordinates = fetched.get();
             }
-            resultVacancies.add(new CourtVacancyJson(
+            resultVacancies.add(new GeolocatedCourtVacancy(
                     vacancy.courtName(),
                     vacancy.courtDepartment(),
                     vacancy.vacancy(),

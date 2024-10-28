@@ -3,11 +3,7 @@ package org.main;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.mga44.court.vacancy.*;
-import org.mga44.court.vacancy.geo.Coordinates;
-import org.mga44.court.vacancy.geo.GeocodingService;
-import org.mga44.court.vacancy.geo.LocalCourtService;
 import org.mga44.court.vacancy.geo.LocationFinder;
-import org.mga44.utils.FileWriter;
 import org.mga44.utils.JsonMapper;
 
 import java.io.IOException;
@@ -15,7 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 public class Main {
@@ -62,7 +61,7 @@ public class Main {
                 vacancies = JsonMapper.fromJsonList(read(Path.of("result/VacancyMapper.out")));
             }
 
-            List<CourtVacancyJson> resultVacancies = new LocationFinder().findCoordinates(vacancies);
+            List<GeolocatedCourtVacancy> resultVacancies = new LocationFinder().findCoordinates(vacancies);
             log.info("Found coordinates for {} vacancies", resultVacancies.size());
             saveAsJson();
         }
