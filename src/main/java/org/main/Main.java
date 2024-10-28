@@ -6,6 +6,7 @@ import org.mga44.court.vacancy.*;
 import org.mga44.court.vacancy.geo.Coordinates;
 import org.mga44.court.vacancy.geo.GeocodingService;
 import org.mga44.court.vacancy.geo.LocalCourtService;
+import org.mga44.court.vacancy.geo.LocationFinder;
 import org.mga44.utils.FileWriter;
 import org.mga44.utils.JsonMapper;
 
@@ -36,20 +37,17 @@ public class Main {
         if (stepsForExecution.contains(Step.PARSE)) {
             final PDFCourtVacancyParser parser = new PDFCourtVacancyParser(FILENAME_1);
             pdfTextContents = parser.parsePDFFile();
-            // prints to result/PDFCourtVacancyParser.out
         }
 
         Map<String, List<String>> sanitizedLanes = null;
         if (stepsForExecution.contains(Step.SANITIZE)) {
             if (pdfTextContents == null) {
-                //TODO pass path as parameter
                 pdfTextContents = read(Path.of("result/PDFCourtVacancyParser.out"));
             }
             sanitizedLanes = new LaneSanitizer().clean(pdfTextContents);
-            // prints to result/LaneSanitizer.out
         }
 
-        List<CourtVacancy> vacancies = null; // currently a blocker - perhapse custom mechanism of reading/dumping from file
+        List<CourtVacancy> vacancies = null;
         if (stepsForExecution.contains(Step.MAP)) {
             if (sanitizedLanes == null) {
                 sanitizedLanes = JsonMapper.fromJsonMap(read(Path.of("result/LaneSanitizer.out")));
@@ -64,29 +62,7 @@ public class Main {
                 vacancies = JsonMapper.fromJsonList(read(Path.of("result/VacancyMapper.out")));
             }
 
-            //todo cache coordinates
-
-            final GeocodingService geoService = new GeocodingService();
-            final ArrayList<CourtVacancyJson> resultVacancies = new ArrayList<>();
-            for (CourtVacancy vacancy : vacancies) {
-                Optional<Coordinates> coordinates = geoService.getCoordinates(vacancy.courtName());
-                if (coordinates.isEmpty()) {
-                    Optional<String> city = LocalCourtService.getCity(vacancy.courtName());
-                    coordinates = city.flatMap(geoService::getCoordinates);
-                    if (coordinates.isEmpty()) {
-                        log.warn("Skipping [{}] for now", vacancy.courtName());
-                        continue;
-                    }
-                }
-                resultVacancies.add(new CourtVacancyJson(
-                        vacancy.courtName(),
-                        vacancy.courtDepartment(),
-                        vacancy.vacancy(),
-                        vacancy.appelation(),
-                        coordinates.get().lat(),
-                        coordinates.get().lon()
-                ));
-            }
+            List<CourtVacancyJson> resultVacancies = new LocationFinder().findCoordinates(vacancies);
             log.info("Found coordinates for {} vacancies", resultVacancies.size());
             FileWriter.writeToOut(Main.class, JsonMapper.toJson(resultVacancies));
             saveAsJson();
