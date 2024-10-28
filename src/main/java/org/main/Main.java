@@ -64,7 +64,6 @@ public class Main {
 
             List<CourtVacancyJson> resultVacancies = new LocationFinder().findCoordinates(vacancies);
             log.info("Found coordinates for {} vacancies", resultVacancies.size());
-            FileWriter.writeToOut(Main.class, JsonMapper.toJson(resultVacancies));
             saveAsJson();
         }
     }

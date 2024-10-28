@@ -59,11 +59,15 @@ public class LocationFinder {
             ));
         }
         dumpCache();
+        FileWriter.writeToOut(LocationFinder.class, JsonMapper.toJson(resultVacancies));
         return resultVacancies;
     }
 
+    //TODO dump as different file
     private void dumpCache() {
+
         FileWriter.writeToResult(LocationFinder.class, JsonMapper.toJson(GEO_CACHE));
+        GEO_CACHE.clear();
     }
 
     private Optional<Coordinates> getCoordinates(CourtVacancy vacancy) {
