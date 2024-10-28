@@ -1,8 +1,10 @@
 package org.mga44.court.vacancy;
 
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.mga44.utils.FileWriter;
+import org.mga44.utils.JsonMapper;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -44,7 +46,6 @@ public class LaneSanitizer {
                 currentCourt = verse.trim();
                 continue;
             }
-            //TODO: think about other approach - read inputs until you get Sad
             if (verse.startsWith(COURT_HEADER) && hasSimpleStructure) {
                 groupedLines.get(currentAppelation).add(verse);
             } else {
@@ -76,10 +77,6 @@ public class LaneSanitizer {
     }
 
     private String prepareForResultPrint(Map<String, List<String>> groupedLines) {
-        return groupedLines.entrySet().stream()
-                .map(e -> e.getKey() + System
-                        .lineSeparator() + e.getValue().stream()
-                        .collect(Collectors.joining(System.lineSeparator())))
-                .collect(Collectors.joining(System.lineSeparator()));
+        return JsonMapper.toJson(groupedLines);
     }
 }
