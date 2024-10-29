@@ -52,7 +52,8 @@ public class LocationFinder {
                     vacancy.vacancy(),
                     vacancy.appelation(),
                     coordinates.lat(),
-                    coordinates.lon()
+                    coordinates.lon(),
+                    coordinates.city()
             ));
         }
         dumpCache();
