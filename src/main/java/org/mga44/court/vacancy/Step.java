@@ -4,5 +4,6 @@ public enum Step {
     PARSE,
     SANITIZE,
     MAP,
-    GEO_COORDINATE
+    GEO_COORDINATE,
+    ENRICH
 }

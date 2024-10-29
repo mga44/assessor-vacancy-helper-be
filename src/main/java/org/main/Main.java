@@ -3,6 +3,8 @@ package org.main;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.mga44.court.vacancy.*;
+import org.mga44.court.vacancy.enrich.AdditionalInformationEnricher;
+import org.mga44.court.vacancy.enrich.EnrichedCourtVacancies;
 import org.mga44.court.vacancy.geo.GeolocatedCourtVacancy;
 import org.mga44.court.vacancy.geo.LocationFinder;
 import org.mga44.utils.JsonMapper;
@@ -27,11 +29,12 @@ public class Main {
     public static void main(String[] args) {
         final Set<Step> stepsForExecution = //EnumSet.allOf(Step.class);
                 EnumSet.of(
-             //   Step.PARSE,
-                Step.SANITIZE,
-                Step.MAP,
-                Step.GEO_COORDINATE
-        );
+                        //   Step.PARSE,
+                        Step.SANITIZE,
+                        Step.MAP,
+                        Step.GEO_COORDINATE,
+                        Step.ENRICH
+                );
 
         String pdfTextContents = null;
         if (stepsForExecution.contains(Step.PARSE)) {
@@ -57,14 +60,21 @@ public class Main {
             log.info("Found {} vacancies", vacancies.size());
         }
 
+        List<GeolocatedCourtVacancy> resultVacancies = null;
         if (stepsForExecution.contains(Step.GEO_COORDINATE)) {
             if (vacancies == null) {
                 vacancies = JsonMapper.fromJsonList(read(Path.of("result/VacancyMapper.out")));
             }
 
-            List<GeolocatedCourtVacancy> resultVacancies = new LocationFinder().findCoordinates(vacancies);
+            resultVacancies = new LocationFinder().findCoordinates(vacancies);
             log.info("Found coordinates for {} vacancies", resultVacancies.size());
             saveAsJson();
+        }
+
+        if (stepsForExecution.contains(Step.ENRICH)) {
+            List<EnrichedCourtVacancies> enriched = new AdditionalInformationEnricher()
+                    .enrich(resultVacancies);
+            log.info("Enriched {} vacancies", enriched.size());
         }
     }
 
