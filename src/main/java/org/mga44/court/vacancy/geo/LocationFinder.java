@@ -8,20 +8,18 @@ import org.mga44.utils.JsonMapper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 public class LocationFinder {
     final GeocodingService geoService = new GeocodingService();
 
-    private static final Map<String, Coordinates> GEO_CACHE = loadCache();
+    private static final Map<String, GeoInformation> GEO_CACHE = loadCache();
 
-    private static Map<String, Coordinates> loadCache() {
+    private static Map<String, GeoInformation> loadCache() {
         try {
             return fromJsonMap(Files.readString(Path.of("result/LocationFinder.out")));
         } catch (IOException e) {
@@ -29,9 +27,9 @@ public class LocationFinder {
         }
     }
 
-    public static Map<String, Coordinates> fromJsonMap(String map) {
+    public static Map<String, GeoInformation> fromJsonMap(String map) {
 
-        final Type mapType = new TypeToken<Map<String, Coordinates>>() {
+        final Type mapType = new TypeToken<Map<String, GeoInformation>>() {
         }.getType();
         return JsonMapper.GSON.fromJson(map, mapType);
     }
@@ -40,9 +38,9 @@ public class LocationFinder {
     public List<GeolocatedCourtVacancy> findCoordinates(List<CourtVacancy> vacancies) {
         final ArrayList<GeolocatedCourtVacancy> resultVacancies = new ArrayList<>();
         for (CourtVacancy vacancy : vacancies) {
-            Coordinates coordinates = GEO_CACHE.get(vacancy.courtName());
+            GeoInformation coordinates = GEO_CACHE.get(vacancy.courtName());
             if (coordinates == null) {
-                Optional<Coordinates> fetched = getCoordinates(vacancy);
+                Optional<GeoInformation> fetched = getCoordinates(vacancy);
                 if (fetched.isEmpty()) {
                     continue;
                 }
@@ -69,21 +67,29 @@ public class LocationFinder {
         GEO_CACHE.clear();
     }
 
-    private Optional<Coordinates> getCoordinates(CourtVacancy vacancy) {
+    private Optional<GeoInformation> getCoordinates(CourtVacancy vacancy) {
         Optional<Coordinates> coordinates = geoService.getCoordinates(vacancy.courtName());
+        Optional<String> city = LocalCourtService.getCity(vacancy.courtName());
         if (coordinates.isPresent()) {
-            GEO_CACHE.put(vacancy.courtName(), coordinates.get());
-            return coordinates;
+            GeoInformation value = new GeoInformation(coordinates.get(), city.orElse(null));
+            GEO_CACHE.put(vacancy.courtName(), value);
+            return Optional.of(value);
         }
 
-        Optional<String> city = LocalCourtService.getCity(vacancy.courtName());
         coordinates = city.flatMap(geoService::getCoordinates);
         if (coordinates.isPresent()) {
-            GEO_CACHE.put(vacancy.courtName(), coordinates.get());
-            return coordinates;
+            GeoInformation value = new GeoInformation(coordinates.get(), city.orElse(null));
+            GEO_CACHE.put(vacancy.courtName(), value);
+            return Optional.of(value);
         }
 
         log.warn("Skipping [{}] for now", vacancy.courtName());
         return Optional.empty();
+    }
+
+    public record GeoInformation(BigDecimal lat, BigDecimal lon, String city) {
+        GeoInformation(Coordinates c, String city) {
+            this(c.lat(),c.lon(), city);
+        }
     }
 }
