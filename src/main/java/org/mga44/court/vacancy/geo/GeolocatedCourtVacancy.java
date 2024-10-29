@@ -8,5 +8,7 @@ public record GeolocatedCourtVacancy(
         int vacancy,
         String appelation,
         BigDecimal latitude,
-        BigDecimal longitude) {
+        BigDecimal longitude,
+        String city
+        ) {
 }
