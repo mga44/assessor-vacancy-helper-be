@@ -81,7 +81,6 @@ public class AdditionalInformationEnricher {
             init();
         }
         Optional<Population> possiblePopulation = POPULATION_CACHE.stream().filter(x -> x.city().startsWith(city)).findFirst();
-//        Optional<BigDecimal> possiblePopulation = Optional.ofNullable(POPULATION_CACHE);
         if (possiblePopulation.isEmpty()) {
             log.warn("Could not find population for city {}", city);
             return "N/A";
@@ -98,7 +97,8 @@ public class AdditionalInformationEnricher {
     }
 
     private static void init() {
-        try (CSVParser parse = CSVParser.parse(Path.of(POPULATION_FILENAME), StandardCharsets.UTF_8, CSVFormat.EXCEL.withHeader().withDelimiter(';'));) {
+        CSVFormat format = CSVFormat.Builder.create().setSkipHeaderRecord(false).setDelimiter(';').build();
+        try (CSVParser parse = CSVParser.parse(Path.of(POPULATION_FILENAME), StandardCharsets.UTF_8, format)) {
             for (CSVRecord record : parse.getRecords()) {
                 POPULATION_CACHE.add(new Population(
                         record.get("Nazwa").trim(),
