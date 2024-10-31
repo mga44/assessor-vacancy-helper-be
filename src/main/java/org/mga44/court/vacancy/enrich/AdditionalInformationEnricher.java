@@ -15,7 +15,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -64,35 +67,43 @@ public class AdditionalInformationEnricher {
     }
 
 
-    static Map<String, BigDecimal> POPULATION_CACHE = new HashMap<>();
+    static List<Population> POPULATION_CACHE = new ArrayList<>();
+
+    record Population(String city, BigDecimal count) {
+    }
 
     private String getPopulation(String city) {
+        if (city == null) {
+            return "N/A";
+        }
+
         if (POPULATION_CACHE.isEmpty()) {
             init();
         }
-
-        Optional<BigDecimal> possiblePopulation = Optional.ofNullable(POPULATION_CACHE.get(city));
-        if(possiblePopulation.isEmpty()) {
+        Optional<Population> possiblePopulation = POPULATION_CACHE.stream().filter(x -> x.city().startsWith(city)).findFirst();
+//        Optional<BigDecimal> possiblePopulation = Optional.ofNullable(POPULATION_CACHE);
+        if (possiblePopulation.isEmpty()) {
             log.warn("Could not find population for city {}", city);
             return "N/A";
         }
 
+        log.debug("Found [{}] for city [{}]", possiblePopulation.get(), city);
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
         symbols.setGroupingSeparator(' ');
         symbols.setDecimalSeparator(',');
 
         DecimalFormat df = new DecimalFormat("#,##0.00 'tys.'", symbols);
-        return df.format(possiblePopulation.get());
+        return df.format(possiblePopulation.get().count());
     }
 
     private static void init() {
         try (CSVParser parse = CSVParser.parse(Path.of(POPULATION_FILENAME), StandardCharsets.UTF_8, CSVFormat.EXCEL.withHeader().withDelimiter(';'));) {
             for (CSVRecord record : parse.getRecords()) {
-                POPULATION_CACHE.put(
+                POPULATION_CACHE.add(new Population(
                         record.get("Nazwa").trim(),
                         new BigDecimal(record.get("ludnoœæ w tysi¹cach").trim().replace(",", "."))
-                );
+                ));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
