@@ -43,6 +43,7 @@ public class AdditionalInformationEnricher {
 
 
         FileWriter.writeToResult(AdditionalInformationEnricher.class, JsonMapper.toJson(result));
+        FileWriter.writeToOut(AdditionalInformationEnricher.class, JsonMapper.toJson(result));
         return result;
     }
 
@@ -97,7 +98,9 @@ public class AdditionalInformationEnricher {
     }
 
     private static void init() {
-        CSVFormat format = CSVFormat.Builder.create().setSkipHeaderRecord(false).setDelimiter(';').build();
+        CSVFormat format = CSVFormat.Builder.create()
+                .setHeader("Kod", "Nazwa", "ludnoœæ w tysi¹cach")
+                .setSkipHeaderRecord(true).setDelimiter(';').build();
         try (CSVParser parse = CSVParser.parse(Path.of(POPULATION_FILENAME), StandardCharsets.UTF_8, format)) {
             for (CSVRecord record : parse.getRecords()) {
                 POPULATION_CACHE.add(new Population(

@@ -25,11 +25,13 @@ public class Main {
     private static final String FILENAME_1 = "src/main/resources/zal._nr_1_zarzadzenie_ministra_sprawiedliwosci.pdf";
     private static final String FILENAME_2 = "src/main/resources/zarzadzenie_ms_z_26.04.24_-_wykaz_wolnych_stanowisk_asesorskich.pdf";
 
+    private static final int YEAR = 2024;
+
     @SneakyThrows
     public static void main(String[] args) {
         final Set<Step> stepsForExecution = //EnumSet.allOf(Step.class);
                 EnumSet.of(
-                        //   Step.PARSE,
+                        Step.PARSE,
                         Step.SANITIZE,
                         Step.MAP,
                         Step.GEO_COORDINATE,
@@ -38,7 +40,7 @@ public class Main {
 
         String pdfTextContents = null;
         if (stepsForExecution.contains(Step.PARSE)) {
-            final PDFCourtVacancyParser parser = new PDFCourtVacancyParser(FILENAME_1);
+            final PDFCourtVacancyParser parser = new PDFCourtVacancyParser(FILENAME_2);
             pdfTextContents = parser.parsePDFFile();
         }
 
@@ -68,7 +70,6 @@ public class Main {
 
             resultVacancies = new LocationFinder().findCoordinates(vacancies);
             log.info("Found coordinates for {} vacancies", resultVacancies.size());
-            saveAsJson();
         }
 
         if (stepsForExecution.contains(Step.ENRICH)) {
@@ -76,13 +77,14 @@ public class Main {
                     .enrich(resultVacancies);
             log.info("Enriched {} vacancies", enriched.size());
         }
+        saveAsJson();
     }
 
     private static void saveAsJson() {
         try {
             Files.copy(
-                    Paths.get("out/Main_output.txt"),
-                    Paths.get("result/coordinates.json"),
+                    Paths.get("out/AdditionalInformationEnricher_output.txt"), //todo can be better
+                    Paths.get(String.format("result/coordinates_%s.json", YEAR)),
                     StandardCopyOption.REPLACE_EXISTING
             );
         } catch (IOException e) {
