@@ -31,7 +31,7 @@ public class Main {
     public static void main(String[] args) {
         final Set<Step> stepsForExecution = //EnumSet.allOf(Step.class);
                 EnumSet.of(
-                        Step.PARSE,
+                //        Step.PARSE,
                         Step.SANITIZE,
                         Step.MAP,
                         Step.GEO_COORDINATE,

@@ -21,7 +21,7 @@ public class LocationFinder {
 
     private static Map<String, GeoInformation> loadCache() {
         try {
-            return fromJsonMap(Files.readString(Path.of("result/LocationFinder.out")));
+            return fromJsonMap(Files.readString(Path.of("cache/LocationFinder.json")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
