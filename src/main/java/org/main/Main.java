@@ -2,6 +2,7 @@ package org.main;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.cli.*;
 import org.mga44.court.vacancy.*;
 import org.mga44.court.vacancy.enrich.AdditionalInformationEnricher;
 import org.mga44.court.vacancy.enrich.EnrichedCourtVacancies;
@@ -14,10 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class Main {
@@ -29,18 +28,42 @@ public class Main {
 
     @SneakyThrows
     public static void main(String[] args) {
-        final Set<Step> stepsForExecution = //EnumSet.allOf(Step.class);
+        final Options options = initOptions(args);
+
+        HelpFormatter formatter = new HelpFormatter();
+        Optional<CommandLine> cmd = parseOptions(args, options);
+
+        if (cmd.isEmpty() || cmd.get().hasOption('h')) {
+            formatter.printHelp("gradle run --args='{args list}", options); //TODO syntax
+            return;
+        }
+
+        CommandLine commandLine = cmd.get();
+
+        Set<Step> stepsForExecution = EnumSet.allOf(Step.class);
+        if (commandLine.hasOption('s')) {
+            String s = commandLine.getOptionValue('s');
+            stepsForExecution = Arrays.stream(s.split(",")).map(x -> Step.valueOf(Step.class, x.trim()))
+                    .collect(Collectors.toSet());
+
+        }
+        stepsForExecution =
                 EnumSet.of(
-                //        Step.PARSE,
+                        //        Step.PARSE,
                         Step.SANITIZE,
                         Step.MAP,
                         Step.GEO_COORDINATE,
                         Step.ENRICH
                 );
 
+        String filename = FILENAME_2;
+        if(commandLine.hasOption('f')) {
+            filename = commandLine.getOptionValue('f');
+        }
+
         String pdfTextContents = null;
         if (stepsForExecution.contains(Step.PARSE)) {
-            final PDFCourtVacancyParser parser = new PDFCourtVacancyParser(FILENAME_2);
+            final PDFCourtVacancyParser parser = new PDFCourtVacancyParser(filename);
             pdfTextContents = parser.parsePDFFile();
         }
 
@@ -78,6 +101,27 @@ public class Main {
             log.info("Enriched {} vacancies", enriched.size());
         }
         saveAsJson();
+    }
+
+    private static Optional<CommandLine> parseOptions(String[] args, Options options) {
+        CommandLineParser parser = new DefaultParser();
+        try {
+            return Optional.of(parser.parse(options, args));
+        } catch (ParseException e) {
+            log.error("Error parsing command-line arguments: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    private static Options initOptions(String[] args) {
+        //todo this (with all the logic) could be extracted to sep. class
+        final Options options = new Options();
+        options.addOption("h", "help", false, "Show help");
+        options.addOption("f", "file", true, "Specify the PDF file to process. Used only in parsing step.");
+        options.addOption("s", "steps", true, "Steps to be executed, separated by comma. Defaults to " +
+                Arrays.stream(Step.values()).map(Enum::name).collect(Collectors.joining(",")));
+
+        return options;
     }
 
     private static void saveAsJson() {

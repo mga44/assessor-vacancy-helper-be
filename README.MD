@@ -45,14 +45,22 @@ JSON file can be passed to other project [assessor-vacancy-helper-fe](https://gi
 Start the application:
 
 ```bash
-gradle run
+gradle run --args='-f=src/main/resources/zarzadzenie_ms_z_26.04.24_-_wykaz_wolnych_stanowisk_asesorskich.pdf -s=PARSE,SANITIZE,MAP,GEO_COORDINATE,ENRICH'
 ```
 
 ## Basic Functionality:
 Describe the core functions and how to use them, such as selecting JSON files for the map.
 
 ## Configuration
-**//TODO describe the args**
+```
+-f,--file <arg>    Specify the PDF file to process. Used only in parsing
+step.
+-h,--help          Show help
+-s,--steps <arg>   Steps to be executed, separated by comma. Defaults to
+PARSE,SANITIZE,MAP,GEO_COORDINATE,ENRICH
+```
+
+
 
 ## Contributing
 If you see an area for improvement open a PR or reach out to me to propose changes.
