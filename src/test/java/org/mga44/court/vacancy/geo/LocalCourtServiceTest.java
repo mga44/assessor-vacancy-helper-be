@@ -16,7 +16,7 @@ class LocalCourtServiceTest {
         //when
         String city = LocalCourtService.getCity(input).get();
         //then
-        assertThat(city).isEqualTo("Polowa 1, £om¿a");
+        assertThat(city).isEqualTo("£om¿a");
     }
 
     @Test
