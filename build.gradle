@@ -1,26 +1,26 @@
 plugins {
     id 'java'
     id 'application'
-
 }
 
 repositories {
     mavenCentral()
 }
-//compileJava.options.encoding = 'Cp1250'
-//compileJava.options.encoding = "UTF-8"
-//compileTestJava.options.encoding = "UTF-8"
-//
-//
-//tasks.withType(JavaCompile) {
-//    options.encoding = 'Cp1250'
-//}
 
 group = 'org.example'
 version = '1.0-SNAPSHOT'
-application {
-    mainClass = 'org.main.Main'  // Replace 'App' with your main class if it has a different name or package
 
+apply plugin : 'java'
+ext {
+    javaMainClass = "org.main.Main"
+}
+
+application {
+    mainClass = 'org.main.Main'
+}
+
+application {
+    mainClassName = javaMainClass
 }
 
 repositories {
@@ -34,6 +34,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.17.0'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'org.apache.commons:commons-csv:1.12.0'
+    //TODO: implementation 'commons-cli:commons-cli:1.5.0'
 
     compileOnly 'org.projectlombok:lombok:1.18.34'
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
