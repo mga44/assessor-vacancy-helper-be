@@ -19,7 +19,6 @@ Java program for fetching list of vacancies in polish courts (presented in PDF f
     ...
   }
 ]
-
 ```
 JSON file can be passed to other project [assessor-vacancy-helper-fe](https://github.com/mga44/assessor-vacancy-helper-fe), which handles data display.
 
@@ -29,6 +28,8 @@ JSON file can be passed to other project [assessor-vacancy-helper-fe](https://gi
 - fetch latitude and longitude from external API
 - fetch city population from GUS register (CSV file) 
 - compute distance from Warsaw
+
+Steps disablement serves as a way for easily fixing data by hand.
 
 ## Installation
 
@@ -47,9 +48,6 @@ Start the application:
 ```bash
 gradle run --args='-f=src/main/resources/zarzadzenie_ms_z_26.04.24_-_wykaz_wolnych_stanowisk_asesorskich.pdf -s=PARSE,SANITIZE,MAP,GEO_COORDINATE,ENRICH'
 ```
-
-## Basic Functionality:
-Describe the core functions and how to use them, such as selecting JSON files for the map.
 
 ## Configuration
 ```
