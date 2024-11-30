@@ -1,6 +1,5 @@
 package org.mga44.court.vacancy;
 
-import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.mga44.utils.FileWriter;
@@ -11,17 +10,23 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class LaneSanitizer {
+public class LaneSanitizer implements Sequencable<String, Map<String, List<String>>> {
     private static final String APPELATION_HEADER = "w obszarze w³aœciwoœci";
     private static final String COURT_HEADER = "S¹d Rejonowy";
 
     private static final Pattern COURT_NUMBER_DEP = Pattern.compile("^.* \\d+ .*$");
 
-    public Map<String, List<String>> clean(String text) {
-        if (StringUtils.isBlank(text)) {
+    @Override
+    public boolean enabled(Set<Step> enabled) {
+        return enabled.contains(Step.SANITIZE);
+    }
+
+    @Override
+    public Map<String, List<String>> execute(String input) {
+        if (StringUtils.isBlank(input)) {
             return Collections.emptyMap();
         }
-        final List<String> verses = Arrays.stream(text.split("\n"))
+        final List<String> verses = Arrays.stream(input.split("\n"))
                 .map(String::trim)
                 .toList();
 
@@ -59,12 +64,16 @@ public class LaneSanitizer {
             }
         }
 
-        FileWriter.writeToOut(LaneSanitizer.class, prepareForPrettyPrint(groupedLines));
-        FileWriter.writeToResult(LaneSanitizer.class, prepareForResultPrint(groupedLines));
         Integer courts = groupedLines.values().stream().map(List::size).reduce(0, Integer::sum);
         int lines = groupedLines.size() + courts;
         log.info("Sanitized [{}] lines, with [{}] courts", lines, courts);
         return groupedLines;
+    }
+
+    @Override
+    public void writeResult(Map<String, List<String>> output) {
+        FileWriter.writeToOut(LaneSanitizer.class, prepareForPrettyPrint(output));
+        FileWriter.writeToResult(LaneSanitizer.class, prepareForResultPrint(output));
     }
 
     private String prepareForPrettyPrint(Map<String, List<String>> groupedLines) {

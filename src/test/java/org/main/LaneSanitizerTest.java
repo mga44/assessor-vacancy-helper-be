@@ -20,7 +20,7 @@ class LaneSanitizerTest {
                 S¹d Rejonowy w Gi¿ycku  1 II Wydzia³ Karny\s
                 """;
         //when
-        Map<String, List<String>> result = new LaneSanitizer().clean(input);
+        Map<String, List<String>> result = new LaneSanitizer().execute(input);
 
         //then
         assertThat(result)
@@ -39,7 +39,7 @@ class LaneSanitizerTest {
                 S¹d Rejonowy w Pu³tusku  2 I Wydzia³ Cywilny \s
                                 """;
 //when
-        Map<String, List<String>> result = new LaneSanitizer().clean(input);
+        Map<String, List<String>> result = new LaneSanitizer().execute(input);
 
         //then
         assertThat(result)
@@ -66,7 +66,7 @@ class LaneSanitizerTest {
                 """;
 
         //when
-        Map<String, List<String>> result = new LaneSanitizer().clean(input);
+        Map<String, List<String>> result = new LaneSanitizer().execute(input);
 
         //then
         assertThat(result)
@@ -85,7 +85,7 @@ class LaneSanitizerTest {
     @ValueSource(strings = {"Poz. 57Dziennik Urzêdowy Ministra Sprawiedliwoœci – 3 –\n"})
     void shouldHandleErrorsGracefully(String input) {
         //when
-        Map<String, List<String>> result = new LaneSanitizer().clean(input);
+        Map<String, List<String>> result = new LaneSanitizer().execute(input);
 
         //then
         assertThat(result).isEmpty();
@@ -101,7 +101,7 @@ class LaneSanitizerTest {
                 S¹d Rejonowy w Bydgoszczy 1 XII Wydzia³ Cywilny \s
                 """;
         //when
-        Map<String, List<String>> result = new LaneSanitizer().clean(input);
+        Map<String, List<String>> result = new LaneSanitizer().execute(input);
 
         //then
         assertThat(result)

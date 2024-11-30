@@ -3,6 +3,8 @@ package org.mga44.court.vacancy.geo;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.mga44.court.vacancy.CourtVacancy;
+import org.mga44.court.vacancy.Sequencable;
+import org.mga44.court.vacancy.Step;
 import org.mga44.utils.FileWriter;
 import org.mga44.utils.JsonMapper;
 
@@ -14,7 +16,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 @Slf4j
-public class LocationFinder {
+public class LocationFinder implements Sequencable<List<CourtVacancy>, List<GeolocatedCourtVacancy>> {
     final GeocodingService geoService = new GeocodingService();
 
     private static final Map<String, GeoInformation> GEO_CACHE = loadCache();
@@ -34,10 +36,15 @@ public class LocationFinder {
         return JsonMapper.GSON.fromJson(map, mapType);
     }
 
+    @Override
+    public boolean enabled(Set<Step> enabled) {
+        return enabled.contains(Step.GEO_COORDINATE);
+    }
 
-    public List<GeolocatedCourtVacancy> findCoordinates(List<CourtVacancy> vacancies) {
+    @Override
+    public List<GeolocatedCourtVacancy> execute(List<CourtVacancy> input) {
         final ArrayList<GeolocatedCourtVacancy> resultVacancies = new ArrayList<>();
-        for (CourtVacancy vacancy : vacancies) {
+        for (CourtVacancy vacancy : input) {
             GeoInformation coordinates = GEO_CACHE.get(vacancy.courtName());
             if (coordinates == null) {
                 Optional<GeoInformation> fetched = getCoordinates(vacancy);
@@ -56,9 +63,14 @@ public class LocationFinder {
                     coordinates.city()
             ));
         }
-        dumpCache();
-        FileWriter.writeToOut(LocationFinder.class, JsonMapper.toJson(resultVacancies));
+        dumpCache(); //TODO: this seems to be more service oriented
+        log.info("Found coordinates for {} vacancies", resultVacancies.size());
         return resultVacancies;
+    }
+
+    @Override
+    public void writeResult(List<GeolocatedCourtVacancy> output) {
+        FileWriter.writeToOut(LocationFinder.class, JsonMapper.toJson(output));
     }
 
     //TODO dump as different file

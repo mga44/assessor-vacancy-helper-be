@@ -1,36 +1,33 @@
 package org.mga44.court.vacancy;
 
+import lombok.extern.slf4j.Slf4j;
 import org.mga44.utils.FileWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class VacancyMapper {
+@Slf4j
+public class VacancyMapper implements Sequencable<Map<String, List<String>>, List<CourtVacancy>> {
     private static final Pattern COURT_NUMBER_DEP = Pattern.compile(" (?=\\d+ )");
 
-    private static final Logger log = LoggerFactory.getLogger(VacancyMapper.class);
+    @Override
+    public boolean enabled(Set<Step> enabled) {
+        return enabled.contains(Step.MAP);
+    }
 
-    public List<CourtVacancy> mapToVacancies(Map<String, List<String>> groupedByAppelation) {
+    @Override
+    public List<CourtVacancy> execute(Map<String, List<String>> input) {
         final List<CourtVacancy> vacancies = new ArrayList<>();
-        for (var e : groupedByAppelation.entrySet()) {
+        for (var e : input.entrySet()) {
             String appelation = e.getKey();
             List<String> courts = e.getValue();
             vacancies.addAll(courts.stream().map(verse -> getCourtVacancy(verse, appelation)).toList());
         }
-
-        FileWriter.writeToOut(VacancyMapper.class,
-                vacancies.stream()
-                        .map(Objects::toString)
-                        .collect(Collectors.joining(System.lineSeparator()))
-        );
+        log.info("Found {} vacancies", vacancies.size());
         return vacancies;
     }
+
 
     private CourtVacancy getCourtVacancy(String verse, String appellation) {
         final String[] parts = COURT_NUMBER_DEP.split(verse, 2);
@@ -42,5 +39,25 @@ public class VacancyMapper {
                 Integer.parseInt(numberAndDep[0]),
                 appellation.trim()
         );
+    }
+
+    @Override
+    public void writeResult(List<CourtVacancy> output) {
+        FileWriter.writeToOut(VacancyMapper.class,
+                output.stream()
+                        .map(Objects::toString)
+                        .collect(Collectors.joining(System.lineSeparator()))
+        );
+    }
+
+    public List<CourtVacancy> mapToVacancies(Map<String, List<String>> groupedByAppelation) {
+        final List<CourtVacancy> vacancies = new ArrayList<>();
+        for (var e : groupedByAppelation.entrySet()) {
+            String appelation = e.getKey();
+            List<String> courts = e.getValue();
+            vacancies.addAll(courts.stream().map(verse -> getCourtVacancy(verse, appelation)).toList());
+        }
+
+        return vacancies;
     }
 }

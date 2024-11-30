@@ -62,43 +62,48 @@ public class Main {
         }
 
         String pdfTextContents = null;
-        if (stepsForExecution.contains(Step.PARSE)) {
-            final PDFCourtVacancyParser parser = new PDFCourtVacancyParser(filename);
-            pdfTextContents = parser.parsePDFFile();
+        final PDFCourtVacancyParser pdfCourtVacancyParser = new PDFCourtVacancyParser();
+        if (pdfCourtVacancyParser.enabled(stepsForExecution)) {
+            pdfTextContents = pdfCourtVacancyParser.execute(filename);
+            pdfCourtVacancyParser.writeResult(pdfTextContents);
         }
 
         Map<String, List<String>> sanitizedLanes = null;
-        if (stepsForExecution.contains(Step.SANITIZE)) {
+        final LaneSanitizer laneSanitizer = new LaneSanitizer();
+        if (laneSanitizer.enabled(stepsForExecution)) {
             if (pdfTextContents == null) {
                 pdfTextContents = read(Path.of("result/PDFCourtVacancyParser.out"));
             }
-            sanitizedLanes = new LaneSanitizer().clean(pdfTextContents);
+            sanitizedLanes = laneSanitizer.execute(pdfTextContents);
+            laneSanitizer.writeResult(sanitizedLanes);
         }
 
         List<CourtVacancy> vacancies = null;
-        if (stepsForExecution.contains(Step.MAP)) {
+        final VacancyMapper vacancyMapper = new VacancyMapper();
+        if (vacancyMapper.enabled(stepsForExecution)) {
             if (sanitizedLanes == null) {
                 sanitizedLanes = JsonMapper.fromJsonMap(read(Path.of("result/LaneSanitizer.out")));
             }
-            final VacancyMapper vacancyMapper = new VacancyMapper();
-            vacancies = vacancyMapper.mapToVacancies(sanitizedLanes);
-            log.info("Found {} vacancies", vacancies.size());
+            vacancies = vacancyMapper.execute(sanitizedLanes);
+            vacancyMapper.writeResult(vacancies);
         }
 
         List<GeolocatedCourtVacancy> resultVacancies = null;
-        if (stepsForExecution.contains(Step.GEO_COORDINATE)) {
+        final LocationFinder locationFinder = new LocationFinder();
+        if (locationFinder.enabled(stepsForExecution)) {
             if (vacancies == null) {
                 vacancies = JsonMapper.fromJsonList(read(Path.of("result/VacancyMapper.out")));
             }
 
-            resultVacancies = new LocationFinder().findCoordinates(vacancies);
-            log.info("Found coordinates for {} vacancies", resultVacancies.size());
+            resultVacancies = locationFinder.execute(vacancies);
+            locationFinder.writeResult(resultVacancies);
         }
 
-        if (stepsForExecution.contains(Step.ENRICH)) {
-            List<EnrichedCourtVacancies> enriched = new AdditionalInformationEnricher()
-                    .enrich(resultVacancies);
-            log.info("Enriched {} vacancies", enriched.size());
+        AdditionalInformationEnricher enricher = new AdditionalInformationEnricher();
+        if (enricher.enabled(stepsForExecution)) {
+            //TODO add loading from drive
+            List<EnrichedCourtVacancies> enriched = enricher.execute(resultVacancies);
+            enricher.writeResult(enriched);
         }
         saveAsJson();
     }
