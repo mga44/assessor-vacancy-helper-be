@@ -28,7 +28,7 @@ public class Main {
 
     @SneakyThrows
     public static void main(String[] args) {
-        final Options options = initOptions(args);
+        final Options options = initOptions();
 
         HelpFormatter formatter = new HelpFormatter();
         Optional<CommandLine> cmd = parseOptions(args, options);
@@ -118,7 +118,7 @@ public class Main {
         }
     }
 
-    private static Options initOptions(String[] args) {
+    private static Options initOptions() {
         //todo this (with all the logic) could be extracted to sep. class
         final Options options = new Options();
         options.addOption("h", "help", false, "Show help");
