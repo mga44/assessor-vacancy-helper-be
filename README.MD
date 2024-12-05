@@ -36,7 +36,7 @@ Steps disablement serves as a way for easily fixing data by hand.
 
 1. **Prerequisites**:
    * Java 17
-   * Gradle 8.2
+   * Gradle 8.3
 2. **Clone the repo**:
 ```bash
    git clone https://github.com/mga44/assessor-vacancy-helper-be.git
